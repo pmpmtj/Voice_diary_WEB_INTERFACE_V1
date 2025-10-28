@@ -1,0 +1,72 @@
+{% extends 'diary/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Execute Pipeline{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Execute Pipeline Script</h1>
+  
+  <div class="card">
+    <div class="card-body">
+      <p class="card-text">Click the button below to execute the voice diary pipeline script.</p>
+      <button id="executeButton" class="btn btn-primary btn-lg" onclick="executeScript()">
+        Execute Script
+      </button>
+      
+      <div id="status" class="mt-3" style="display: none;">
+        <div class="alert" role="alert"></div>
+      </div>
+      
+      {% if request.GET.success %}
+        <div class="alert alert-success mt-3" role="alert">
+          Script executed successfully!
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <script>
+    function executeScript() {
+      const button = document.getElementById('executeButton');
+      const statusDiv = document.getElementById('status');
+      const alertDiv = statusDiv.querySelector('.alert');
+      
+      // Disable button and show loading state
+      button.disabled = true;
+      button.textContent = 'Executing...';
+      statusDiv.style.display = 'none';
+      
+      // Send POST request
+      fetch('/api/execute/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({})
+      })
+      .then(response => response.json())
+      .then(data => {
+        statusDiv.style.display = 'block';
+        if (data.success) {
+          alertDiv.className = 'alert alert-success';
+          alertDiv.textContent = data.message;
+        } else {
+          alertDiv.className = 'alert alert-danger';
+          alertDiv.textContent = data.message + (data.error ? ': ' + data.error : '');
+        }
+      })
+      .catch(error => {
+        statusDiv.style.display = 'block';
+        alertDiv.className = 'alert alert-danger';
+        alertDiv.textContent = 'Error: ' + error.message;
+      })
+      .finally(() => {
+        // Re-enable button
+        button.disabled = false;
+        button.textContent = 'Execute Script';
+      });
+    }
+  </script>
+{% endblock %}
+

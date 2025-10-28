@@ -1,40 +1,31 @@
-{% load bootstrap5 %}
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Voice Diary</title>
-    {% bootstrap_css %}
-  </head>
-  <body>
-    <div class="container mt-4 mb-4">
-      <h1 class="mb-4">Voice Diary Records</h1>
-      
-      {% if page_obj %}
-        {% for item in page_obj %}
-          <div class="card mb-3">
-            <div class="card-body">
-              <h6 class="card-subtitle mb-2 text-muted">
-                {{ item.occurred_at|date:"Y-m-d H:i" }} UTC
-              </h6>
-              <p class="card-text" style="white-space: pre-wrap;">{{ item.content_text }}</p>
-            </div>
-          </div>
-        {% endfor %}
-        
-        {% if page_obj.has_other_pages %}
-          <nav aria-label="Page navigation">
-            {% bootstrap_pagination page_obj %}
-          </nav>
-        {% endif %}
-      {% else %}
-        <p class="alert alert-info">No records found.</p>
-      {% endif %}
-    </div>
+{% extends 'diary/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Voice Diary Records{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Voice Diary Records</h1>
+  
+  {% if page_obj %}
+    {% for item in page_obj %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">
+            {{ item.occurred_at|date:"Y-m-d H:i" }} UTC
+          </h6>
+          <p class="card-text" style="white-space: pre-wrap;">{{ item.content_text }}</p>
+        </div>
+      </div>
+    {% endfor %}
     
-    {% bootstrap_javascript %}
-  </body>
-</html>
+    {% if page_obj.has_other_pages %}
+      <nav aria-label="Page navigation">
+        {% bootstrap_pagination page_obj %}
+      </nav>
+    {% endif %}
+  {% else %}
+    <p class="alert alert-info">No records found.</p>
+  {% endif %}
+{% endblock %}
 
 

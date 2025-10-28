@@ -19,7 +19,7 @@ ALLOWED_HOSTS = [h for h in os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",") if
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
-    "bootstrap5",
+    "django_bootstrap5",
     "diary",
 ]
 

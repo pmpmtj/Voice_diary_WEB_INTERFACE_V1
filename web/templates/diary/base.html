@@ -1,0 +1,29 @@
+{% load django_bootstrap5 %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Voice Diary - {% block title %}Home{% endblock %}</title>
+    {% bootstrap_css %}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Voice Diary</a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="{% url 'home' %}">View Records</a>
+          <a class="nav-link" href="{% url 'execute' %}">Execute Script</a>
+        </div>
+      </div>
+    </nav>
+    
+    <div class="container mt-4 mb-4">
+      {% block content %}{% endblock %}
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+    {% bootstrap_javascript %}
+  </body>
+</html>
+

@@ -1,33 +1,22 @@
 from django.shortcuts import render
-from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import subprocess
 import os
 
-from .models import IngestItem
 
-
-def home(request):
-    items = IngestItem.objects.filter(is_deleted=False).order_by("-occurred_at")
-    paginator = Paginator(items, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    return render(request, "diary/home.html", {"page_obj": page_obj})
-
-
-def execute(request):
-    """Render the execute script page."""
-    return render(request, "diary/execute.html")
+def index(request):
+    """Render the main page with the button."""
+    return render(request, 'index.html')
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def execute_script(request):
-    """Execute the pipeline script when button is clicked."""
+    """Execute the Python script when button is clicked."""
     try:
-        # Script path from the other project
+        # Script path provided by user
         script_path = r"C:\Users\pmpmt\V6-Voice_diary_records\run_pipelines.py"
         
         # Check if script exists
@@ -42,7 +31,7 @@ def execute_script(request):
             ['python', script_path], 
             capture_output=True, 
             text=True, 
-            timeout=300  # 5 minutes timeout
+            timeout=30
         )
         
         if result.returncode == 0:
@@ -68,5 +57,3 @@ def execute_script(request):
             'success': False, 
             'message': f'Error executing script: {str(e)}'
         }, status=500)
-
-
