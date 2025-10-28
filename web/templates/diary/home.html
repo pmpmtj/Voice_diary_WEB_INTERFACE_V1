@@ -10,8 +10,11 @@
     {% for item in page_obj %}
       <div class="card mb-3">
         <div class="card-body">
-          <h6 class="card-subtitle mb-2 text-muted">
-            {{ item.occurred_at|date:"Y-m-d H:i" }} UTC
+          <h6 class="card-subtitle mb-2">
+            <span class="text-muted">{{ item.occurred_at|date:"Y-m-d H:i" }} UTC</span>
+            {% for tag in item.tags.all %}
+              <span class="badge bg-secondary ms-2">{{ tag.name }}</span>
+            {% endfor %}
           </h6>
           <p class="card-text" style="white-space: pre-wrap;">{{ item.content_text }}</p>
         </div>

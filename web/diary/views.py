@@ -10,7 +10,12 @@ from .models import IngestItem
 
 
 def home(request):
-    items = IngestItem.objects.filter(is_deleted=False).order_by("-occurred_at")
+    items = (
+        IngestItem.objects
+        .filter(is_deleted=False)
+        .prefetch_related("tags")
+        .order_by("-occurred_at")
+    )
     paginator = Paginator(items, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
