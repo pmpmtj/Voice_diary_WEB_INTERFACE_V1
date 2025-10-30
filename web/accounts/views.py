@@ -51,7 +51,7 @@ def login_view(request):
     # Redirect if already authenticated
     if request.user.is_authenticated:
         logger.info(f"User {request.user.email} already authenticated, redirecting")
-        return redirect('home')
+        return redirect('dashboard')
     
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
@@ -74,8 +74,8 @@ def login_view(request):
             logger.info(f"User {email} successfully logged in")
             messages.success(request, f'Welcome back, {user.get_short_name()}!')
             
-            # Redirect to next page or home
-            next_url = request.GET.get('next', 'home')
+            # Redirect to next page or dashboard
+            next_url = request.GET.get('next', 'dashboard')
             logger.debug(f"Redirecting to: {next_url}")
             return redirect(next_url)
         else:
@@ -127,7 +127,7 @@ def register_view(request):
     # Redirect if already authenticated
     if request.user.is_authenticated:
         logger.info(f"User {request.user.email} already authenticated, redirecting")
-        return redirect('home')
+        return redirect('dashboard')
     
     if request.method == 'POST':
         email = request.POST.get('email', '').strip().lower()
@@ -197,7 +197,7 @@ def register_view(request):
             logger.info(f"New user {email} automatically logged in")
             
             messages.success(request, f'Welcome, {user.get_short_name()}! Your account has been created.')
-            return redirect('home')
+            return redirect('dashboard')
             
         except IntegrityError:
             logger.warning(f"Registration attempt with existing email: {email}")

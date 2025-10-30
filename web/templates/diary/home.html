@@ -6,119 +6,25 @@
 {% block content %}
   <h1 class="mb-4">Voice Diary Records</h1>
   
-  {% if page_obj %}
-    {% for item in page_obj %}
-      <div class="card mb-3" data-item-card="{{ item.id }}">
+  {% if items %}
+    {% for item in items %}
+      <div class="card mb-3">
         <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <h6 class="card-subtitle mb-0">
-              <span class="text-muted">{{ item.occurred_at|date:"Y-m-d H:i" }} UTC</span>
-              {% for tag in item.tags.all %}
-                <span class="badge bg-secondary ms-2">{{ tag.name }}</span>
-              {% endfor %}
-            </h6>
-            {% if user.is_authenticated %}
-              <button class="btn btn-sm btn-outline-danger delete-btn" 
-                      data-item-id="{{ item.id }}"
-                      title="Delete this entry">
-                Delete
-              </button>
-            {% endif %}
-          </div>
+          <h6 class="card-subtitle mb-2">
+            <span class="text-muted">{{ item.occurred_at|date:"Y-m-d H:i" }} UTC</span>
+            {% for tag in item.tags.all %}
+              <span class="badge bg-secondary ms-2">{{ tag.name }}</span>
+            {% endfor %}
+          </h6>
           <p class="card-text" style="white-space: pre-wrap;">{{ item.content_text }}</p>
         </div>
       </div>
     {% endfor %}
     
-    {% if page_obj.has_other_pages %}
-      <nav aria-label="Page navigation">
-        {% bootstrap_pagination page_obj %}
-      </nav>
-    {% endif %}
+    {# No pagination on homepage; show only last 7 entries #}
   {% else %}
     <p class="alert alert-info">No records found.</p>
   {% endif %}
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get CSRF token from cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    
-    const csrftoken = getCookie('csrftoken');
-    
-    // Add click event listeners to all delete buttons
-    document.querySelectorAll('.delete-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const itemId = this.getAttribute('data-item-id');
-            const card = document.querySelector(`[data-item-card="${itemId}"]`);
-            
-            // Show confirmation dialog
-            if (!confirm('Are you sure you want to delete this entry?')) {
-                return;
-            }
-            
-            // Disable button to prevent double-click
-            button.disabled = true;
-            button.textContent = 'Deleting...';
-            
-            // Make AJAX POST request
-            fetch(`/api/delete/${itemId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.error || 'Failed to delete entry');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Success - fade out and remove card
-                card.style.transition = 'opacity 0.3s ease-out';
-                card.style.opacity = '0';
-                
-                setTimeout(function() {
-                    card.remove();
-                    
-                    // Check if page is now empty
-                    const remainingCards = document.querySelectorAll('[data-item-card]');
-                    if (remainingCards.length === 0) {
-                        // Reload to show "No records found" message
-                        window.location.reload();
-                    }
-                }, 300);
-            })
-            .catch(error => {
-                // Error - show alert and re-enable button
-                alert('Error deleting entry: ' + error.message);
-                button.disabled = false;
-                button.textContent = 'Delete';
-            });
-        });
-    });
-});
-</script>
 {% endblock %}
 
 

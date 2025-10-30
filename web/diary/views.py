@@ -34,11 +34,44 @@ def home(request):
         .filter(is_deleted=False)
         .prefetch_related("tags")
         .order_by("-occurred_at")
+    )[:7]
+    return render(request, "diary/home.html", {"items": items})
+
+
+@login_required
+def dashboard(request):
+    """Read-only dashboard for authenticated users showing recent entries."""
+    items = (
+        IngestItem.objects
+        .filter(is_deleted=False)
+        .prefetch_related("tags")
+        .order_by("-occurred_at")
     )
     paginator = Paginator(items, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, "diary/home.html", {"page_obj": page_obj})
+    return render(request, "diary/dashboard.html", {"page_obj": page_obj})
+
+
+@login_required
+def manage(request):
+    """Management area for authenticated users (actions live here)."""
+    logger.debug(f"Manage view accessed by user {request.user.email}")
+    
+    # Query and paginate entries (same as dashboard)
+    items = (
+        IngestItem.objects
+        .filter(is_deleted=False)
+        .prefetch_related("tags")
+        .order_by("-occurred_at")
+    )
+    paginator = Paginator(items, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    
+    logger.debug(f"Manage page {page_number or 1} showing {page_obj.object_list.count()} items")
+    
+    return render(request, "diary/manage.html", {"page_obj": page_obj})
 
 
 @login_required
