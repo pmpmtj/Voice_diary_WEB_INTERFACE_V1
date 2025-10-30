@@ -6,8 +6,26 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 import subprocess
 import os
+from pathlib import Path
+import sys
 
 from .models import IngestItem
+
+# Initialize paths for logging
+if getattr(sys, 'frozen', False):
+    SCRIPT_DIR = Path(sys.executable).parent
+else:
+    SCRIPT_DIR = Path(__file__).resolve().parent
+
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from common.logging_utils.logging_config import get_logger
+from .services import delete_item
+
+# Initialize logger
+logger = get_logger('diary')
 
 
 def home(request):
@@ -75,6 +93,58 @@ def execute_script(request):
         return JsonResponse({
             'success': False, 
             'message': f'Error executing script: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_item_view(request, item_id):
+    """
+    Delete a diary entry (soft or hard based on configuration).
+    
+    This endpoint handles deletion requests from the web interface.
+    Only authenticated users can delete entries.
+    
+    Args:
+        request: Django HTTP request object
+        item_id: UUID of the IngestItem to delete
+        
+    Returns:
+        JsonResponse: Success status and message
+            - 200: {'success': True, 'message': 'Entry deleted'}
+            - 404: {'success': False, 'error': 'Item not found'}
+            - 500: {'success': False, 'error': 'Error message'}
+    """
+    logger.debug(f"Delete request for item {item_id} by user {request.user.email}")
+    
+    try:
+        # Lookup item (only non-deleted items can be deleted)
+        item = IngestItem.objects.get(id=item_id, is_deleted=False)
+        
+        logger.info(f"Deleting item {item_id}: {item.content_text[:50] if item.content_text else '(no content)'}")
+        
+        # Call delete service
+        delete_item(item)
+        
+        logger.info(f"Successfully processed delete request for item {item_id}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Entry deleted successfully'
+        })
+        
+    except IngestItem.DoesNotExist:
+        logger.warning(f"Delete request for non-existent item {item_id}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Item not found or already deleted'
+        }, status=404)
+        
+    except Exception as e:
+        logger.error(f"Error deleting item {item_id}: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred while deleting: {str(e)}'
         }, status=500)
 
 
