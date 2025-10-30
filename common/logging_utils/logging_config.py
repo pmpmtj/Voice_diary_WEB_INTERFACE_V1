@@ -65,6 +65,12 @@ LOGGING_CONFIG = {
             "log_filename": "sample.log",
             "console_output": True,
             "file_output": True
+        },
+        # User authentication and accounts management logger
+        "accounts": {
+            "log_filename": "accounts.log",
+            "console_output": True,
+            "file_output": True
         }
     },
     "strict_config": False  # if True, unknown logger names raise an error
