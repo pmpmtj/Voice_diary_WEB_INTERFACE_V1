@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 import subprocess
 import os
 
@@ -22,11 +23,13 @@ def home(request):
     return render(request, "diary/home.html", {"page_obj": page_obj})
 
 
+@login_required
 def execute(request):
     """Render the execute script page."""
     return render(request, "diary/execute.html")
 
 
+@login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def execute_script(request):

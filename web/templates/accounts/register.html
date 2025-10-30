@@ -1,0 +1,106 @@
+{% extends 'diary/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow">
+      <div class="card-body p-4">
+        <h2 class="card-title text-center mb-4">Create Account</h2>
+        
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+        
+        <form method="post" novalidate>
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+            <input 
+              type="email" 
+              class="form-control" 
+              id="email" 
+              name="email" 
+              placeholder="Enter your email"
+              value="{{ email|default:'' }}"
+              required
+              autofocus
+            >
+            <div class="form-text">This will be your username for login.</div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="first_name" class="form-label">First Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="first_name" 
+                name="first_name" 
+                placeholder="First name"
+                value="{{ first_name|default:'' }}"
+              >
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="last_name" class="form-label">Last Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="last_name" 
+                name="last_name" 
+                placeholder="Last name"
+                value="{{ last_name|default:'' }}"
+              >
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+            <input 
+              type="password" 
+              class="form-control" 
+              id="password" 
+              name="password" 
+              placeholder="Enter password"
+              required
+            >
+            <div class="form-text">Must be at least 8 characters long.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="password_confirm" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+            <input 
+              type="password" 
+              class="form-control" 
+              id="password_confirm" 
+              name="password_confirm" 
+              placeholder="Confirm password"
+              required
+            >
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+          </div>
+        </form>
+        
+        <hr class="my-4">
+        
+        <div class="text-center">
+          <p class="mb-0">Already have an account? <a href="{% url 'accounts:login' %}">Login here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -11,9 +11,21 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">Voice Diary</a>
-        <div class="navbar-nav ms-auto">
-          <a class="nav-link" href="{% url 'home' %}">View Records</a>
-          <a class="nav-link" href="{% url 'execute' %}">Execute Script</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="{% url 'home' %}">View Records</a>
+            {% if user.is_authenticated %}
+              <a class="nav-link" href="{% url 'execute' %}">Execute Script</a>
+              <span class="nav-link text-light">{{ user.get_short_name }}</span>
+              <a class="nav-link" href="{% url 'accounts:logout' %}">Logout</a>
+            {% else %}
+              <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+              <a class="nav-link" href="{% url 'accounts:register' %}">Register</a>
+            {% endif %}
+          </div>
         </div>
       </div>
     </nav>
