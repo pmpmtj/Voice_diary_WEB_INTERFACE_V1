@@ -42,6 +42,10 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_type') THEN
     CREATE TYPE event_type AS ENUM ('created','reprocessed','updated','file_missing','text_extracted','summary_updated','error');
   END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'deletion_type') THEN
+    CREATE TYPE deletion_type AS ENUM ('soft','hard');
+  END IF;
 END$$;
 
 -- ---------- Utility: language->regconfig (inline CASE expression later) ----------
@@ -110,6 +114,8 @@ CREATE TABLE IF NOT EXISTS ingest_item (
   len_classif        VARCHAR,                -- length classification
 
   is_deleted         BOOLEAN NOT NULL DEFAULT false,
+  deletion_type      deletion_type DEFAULT 'soft',  -- 'soft' (recoverable) or 'hard' (permanent)
+  deleted_at         TIMESTAMPTZ,            -- timestamp when item was deleted
 
   -- ---------------- Search columns (generated) ----------------
   -- Weighting: title -> 'A', content_text -> 'B'
@@ -172,6 +178,7 @@ CREATE INDEX IF NOT EXISTS idx_ingest_item_status ON ingest_item(status);
 CREATE INDEX IF NOT EXISTS idx_ingest_item_item_type ON ingest_item(item_type);
 CREATE INDEX IF NOT EXISTS idx_ingest_item_lang ON ingest_item(content_language);
 CREATE INDEX IF NOT EXISTS idx_ingest_item_deleted ON ingest_item(is_deleted);
+CREATE INDEX IF NOT EXISTS idx_ingest_item_deletion_type ON ingest_item(deletion_type) WHERE is_deleted = true;
 CREATE INDEX IF NOT EXISTS idx_ingest_item_run ON ingest_item(ingest_run_id);
 
 -- FTS indexes

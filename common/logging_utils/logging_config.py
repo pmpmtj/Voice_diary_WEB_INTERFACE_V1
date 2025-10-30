@@ -71,6 +71,12 @@ LOGGING_CONFIG = {
             "log_filename": "accounts.log",
             "console_output": True,
             "file_output": True
+        },
+        # Diary entries and deletion operations logger
+        "diary": {
+            "log_filename": "diary.log",
+            "console_output": True,
+            "file_output": True
         }
     },
     "strict_config": False  # if True, unknown logger names raise an error
